@@ -1,0 +1,57 @@
+#include <stdio.h>
+
+int main() {
+    int n, tq;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    int arrival[n], burst[n], remaining[n], pid[n];
+    int completion[n], turnaround[n], waiting[n];
+    for (int i = 0; i < n; i++) {
+        printf("Enter Arrival and Burst time for P%d: ", i+1);
+        scanf("%d %d", &arrival[i], &burst[i]);
+        remaining[i] = burst[i]; // initialize remaining time
+        pid[i] = i + 1;
+        completion[i] = 0;
+    }
+
+    printf("Enter Time Quantum: ");
+    scanf("%d", &tq);
+
+    int time = 0, done = 0;
+
+    printf("\nExecution Order (Gantt Chart style):\n");
+
+    while (done < n) {
+        int executed = 0; // flag to check if any process ran in this cycle
+
+        for (int i = 0; i < n; i++) {
+            if (arrival[i] <= time && remaining[i] > 0) {
+                executed = 1;
+                int exec_time = (remaining[i] < tq) ? remaining[i] : tq;
+                printf("| P%d (%d) ", pid[i], exec_time);
+                time += exec_time;
+                remaining[i] -= exec_time;
+
+                if (remaining[i] == 0) {
+                    completion[i] = time;
+                    turnaround[i] = completion[i] - arrival[i];
+                    waiting[i] = turnaround[i] - burst[i];
+                    done++;
+                }
+            }
+        }
+
+        if (!executed) time++; // CPU idle
+    }
+
+    printf("|\n\n");
+
+    // Print final table
+    printf("P\tAT\tBT\tCT\tTAT\tWT\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n", pid[i], arrival[i], burst[i], completion[i], turnaround[i], waiting[i]);
+    }
+
+    return 0;
+}
