@@ -1,0 +1,53 @@
+#include <stdio.h>
+
+int main() {
+    int n;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    int arrival[n], burst[n], pid[n], completed[n];
+    for (int i = 0; i < n; i++) {
+        printf("Enter arrival and burst for P%d: ", i+1);
+        scanf("%d %d", &arrival[i], &burst[i]);
+        pid[i] = i + 1;
+        completed[i] = 0; // initially all processes are not completed
+    }
+
+    int time = 0, done = 0;
+
+    printf("\nP\tAT\tBT\tST\tCT\tTAT\tWT\n");
+
+    while (done < n) {
+        int idx = -1;
+        int min_bt = 100000; // arbitrarily large
+
+        // Find shortest burst among arrived processes
+        for (int i = 0; i < n; i++) {
+            if (arrival[i] <= time && !completed[i]) {
+                if (burst[i] < min_bt) {
+                    min_bt = burst[i];
+                    idx = i;
+                }
+            }
+        }
+
+        if (idx == -1) {
+            // No process has arrived, CPU idle
+            time++;
+            continue;
+        }
+
+        int start = time;
+        int completion = start + burst[idx];
+        int turnaround = completion - arrival[idx];
+        int waiting = turnaround - burst[idx];
+
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\n", pid[idx], arrival[idx], burst[idx], start, completion, turnaround, waiting);
+
+        completed[idx] = 1;
+        done++;
+        time = completion;
+    }
+
+    return 0;
+}
